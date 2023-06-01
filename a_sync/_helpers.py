@@ -41,6 +41,9 @@ def _await(awaitable: Awaitable[T]) -> T:
     except RuntimeError as e:
         if str(e) == "This event loop is already running":
             raise RuntimeError(str(e), running_event_loop_msg)
+        elif str(e).startswith("There is no current event loop in thread"):
+            loop = asyncio.new_event_loop()
+            return loop.run_until_complete(awaitable)
         raise
 
 def _asyncify(func: SyncFn[P, T], executor: Executor) -> CoroFn[P, T]:
